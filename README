@@ -1,3 +1,19 @@
+The snow capability is built into SARndbox version 2.8 described below. Although modifications are only required within the SARndbox project, the Kinect and VRUI projects must be built and installed in order for the SARndbox to work. (https://web.cs.ucdavis.edu/~okreylos/ResDev/SARndbox/SoftwareInstallation.html)
+
+The water sources capability is initiated using the snowConfig.cfg file found in etc/SARndbox-2.8. This file is monitored when the sandbox is running and changes are detected without restarting the software. The pertinent section of the file is:
+
+//The value below is the critical height or freeze line. The water table is at 0. Positive values mean above the water table.
+6.0
+// The value below is the Melt Rate. The default value is 5. Larger numbers will make the snow melt faster.
+5.0
+
+
+The critical height value is the relative height above which snow will be generated. This value is relative to the water table (blue areas) of the topography, where 0 is the line where the water table begins. Positive values are above the water table line and negative values are below. Depending on the amount of sand in a sandbox, the typical critial height value where no snow will generate is 10.0 or above.
+
+
+Demonstration can be seen on YOUTUBE.
+
+
 ========================================================================
 README for Augmented Reality Sandbox (SARndbox) version 2.8
 Copyright (c) 2012-2021 Oliver Kreylos
