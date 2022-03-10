@@ -116,9 +116,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 #include "Config.h"
 
-// DEBUGGING
-#include <iostream>
-
 /**********************************
 Methods of class Sandbox::DataItem:
 **********************************/
@@ -1470,19 +1467,6 @@ void Sandbox::display(GLContextData& contextData) const
 		
 		/* Run the water flow simulation's main pass: */
 		GLfloat totalTimeStep=GLfloat(Vrui::getFrameTime()*waterSpeed);
-		waterTable->setApplicationTime(Vrui::getApplicationTime());
-		if(waterTable->waterSourceType ==3){
-			if(waterTable->tidalWave!=waterTable->tidalWavePrev){
-				waterTable->tidalWave=waterTable->tidalWavePrev;
-				waterTable->newTidalWave=1;
-				std::cout<< "new TidalWave On" << std::endl;
-			}
-			else
-			{
-				waterTable->newTidalWave=0;
-				//std::cout<< "new TidalWave Off"< std::endl;
-			}
-		}
 		unsigned int numSteps=0;
 		while(numSteps<waterMaxSteps-1U&&totalTimeStep>1.0e-8f)
 			{
@@ -1504,7 +1488,7 @@ void Sandbox::display(GLContextData& contextData) const
 			}
 		#else
 		if(totalTimeStep>1.0e-8f)
-		//	std::cout<<"Ran out of time by "<<totalTimeStep<<std::endl;
+			std::cout<<"Ran out of time by "<<totalTimeStep<<std::endl;
 		#endif
 		
 		/* Check if the grid request is active and wants water level data: */

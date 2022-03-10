@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #ifndef CONFIG_INCLUDED
 #define CONFIG_INCLUDED
 
-#define CONFIG_CONFIGDIR "/home/sandtable/src/SARndbox-2.8-WaterSources/etc/SARndbox-2.8"
-#define CONFIG_SHADERDIR "/home/sandtable/src/SARndbox-2.8-WaterSources/share/SARndbox-2.8/Shaders"
+#define CONFIG_CONFIGDIR "/home/sandtable/src/SARndbox-2.8-Snow/etc/SARndbox-2.8"
+#define CONFIG_SHADERDIR "/home/sandtable/src/SARndbox-2.8-Snow/share/SARndbox-2.8/Shaders"
 
 #define CONFIG_DEFAULTCONFIGFILENAME "SARndbox.cfg"
 #define CONFIG_DEFAULTBOXLAYOUTFILENAME "BoxLayout.txt"

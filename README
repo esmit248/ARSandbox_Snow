@@ -1,24 +1,3 @@
-The water sources capability is built into SARndbox version 2.8 described below. Although modifications are only required within the SARndbox project, the Kinect and VRUI projects must be built and installed in order for the SARndbox to work. (https://web.cs.ucdavis.edu/~okreylos/ResDev/SARndbox/SoftwareInstallation.html)
-
-The water sources capability is initiated using the snowConfig.cfg file found in etc/SARndbox-2.8. This file is monitored when the sandbox is running and changes are detected without restarting the software. The pertinent section of the file is:
-
-// Water Source Type
-// 0 - no water sources
-// 1 - spring in lower right corner
-// 2 - continual wave motion
-// 3 - tidal wave
-1
-// continual wave motion amplitude factor
-2.1
-// continual wave motion frequency factor
-3.1
-// Initiate Tidal Wave: if the number has been changed then a wave will be initiated
-2
-
-
-Only one water source may be active at a time. A demonstration of this feature and a discussion of the configuration file can be found:
-YOUTUBE
-
 ========================================================================
 README for Augmented Reality Sandbox (SARndbox) version 2.8
 Copyright (c) 2012-2021 Oliver Kreylos

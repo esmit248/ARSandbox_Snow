@@ -102,16 +102,6 @@ class WaterTable2:public GLObject
 		GLhandleARB freezeShader;
 		GLint freezeShaderUniformLocations[3];
 		
-		//water sources
-		GLuint waterSourceFramebufferObject;
-		GLhandleARB waterSourceShader;
-		GLint waterSourceShaderUniformLocations[6];
-		GLfloat waveStrength=0;
-		GLint tidalWaveAction=0;  // 0 is no, 1 is yes
-		GLint tidalWaveDuration=0;
-
-		
-
 
 		/* Constructors and destructors: */
 		DataItem(void);
@@ -160,17 +150,6 @@ class WaterTable2:public GLObject
 	virtual void initContext(GLContextData& contextData) const;
 	float criticalHeight=0.0; // Snow Support
 	float meltRate=0.0; // Snow Support
-
-	//Water Source Support
-	int waterSourceType=0; // 0 - no water source; 1 -spring; 2- continual wave; 3 - tidal wave
-	float waveFrequency= 0.0;  // only affects continual wave motion spring
-	float waveAmplitude = 0.0; // only affects continual wave motion spring
-	int tidalWave =0;   // flag for initiating wave
-	int tidalWavePrev=0; // comparision value for flag
-	int newTidalWave=0;
-	float applicationTime = 0; // storage of VRUI time data for wave motion
-	void setApplicationTime(float time) { applicationTime=time;}
-	
 
 	/* New methods: */
 	const GLsizei* getSize(void) const // Returns the size of the water table

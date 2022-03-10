@@ -89,9 +89,7 @@ WaterTable2::DataItem::DataItem(void)
 	 bathymetryFramebufferObject(0),derivativeFramebufferObject(0),maxStepSizeFramebufferObject(0),integrationFramebufferObject(0),waterFramebufferObject(0),
 	 bathymetryShader(0),waterAdaptShader(0),derivativeShader(0),maxStepSizeShader(0),boundaryShader(0),eulerStepShader(0),rungeKuttaStepShader(0),waterAddShader(0),waterShader(0),
 	//Snow Support
-	 snowShader(0),freezeShader(0),snowTextureObject(0),snowFramebufferObject(0),freezeFramebufferObject(0),
-	 //Water Source Support
-	 waterSourceFramebufferObject(0), waterSourceShader(0)
+	 snowShader(0),freezeShader(0),snowTextureObject(0),snowFramebufferObject(0),freezeFramebufferObject(0)
 	{
 	for(int i=0;i<2;++i)
 		{
@@ -142,11 +140,6 @@ WaterTable2::DataItem::~DataItem(void)
 	glDeleteFramebuffersEXT(1,&freezeFramebufferObject);
 	glDeleteObjectARB(snowShader);
 	glDeleteObjectARB(freezeShader);
-
-	/*Water Source Support*/
-	glDeleteFramebuffersEXT(1,&waterSourceFramebufferObject);
-	glDeleteObjectARB(waterSourceShader);
-
 	}
 
 /****************************
@@ -314,7 +307,7 @@ GLfloat WaterTable2::calcDerivative(WaterTable2::DataItem* dataItem,GLuint quant
 WaterTable2::WaterTable2(GLsizei width,GLsizei height,const GLfloat sCellSize[2])
 	:depthImageRenderer(0),
 	 baseTransform(ONTransform::identity),
-	 dryBoundary(true) 
+	 dryBoundary(true)
 	{
 	/* Initialize the water table size and cell size: */
 	size[0]=width;
@@ -345,7 +338,7 @@ WaterTable2::WaterTable2(GLsizei width,GLsizei height,const GLfloat sCellSize[2]
 
 WaterTable2::WaterTable2(GLsizei width,GLsizei height,const DepthImageRenderer* sDepthImageRenderer,const Point basePlaneCorners[4])
 	:depthImageRenderer(sDepthImageRenderer),
-	 dryBoundary(true)//BCS changed true to false
+	 dryBoundary(true)
 	{
 	/* Initialize the water table size: */
 	size[0]=width;
@@ -399,28 +392,6 @@ WaterTable2::WaterTable2(GLsizei width,GLsizei height,const DepthImageRenderer* 
 	s=criticalHeightSource.readLine(); //third line is comment
 	s=criticalHeightSource.readLine();
 	meltRate=std::stof(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	waterSourceType=std::stoi(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	waveAmplitude=std::stof(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	waveFrequency=std::stof(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	tidalWave=std::stoi(s);
-	
-	std::cout << "Inital Water Source values, type: " << waterSourceType << std::endl;
-	std::cout << "Amplitude " << waveAmplitude << " Frequency " << waveFrequency << std::endl;
-	std::cout << "Tidal Wave " << tidalWave << std::endl;
-	
-	
 	//std::cout<< "Initial critical height: " << criticalHeight << std::endl;
 	//std::cout<< "Initial melt rate: " << meltRate << std::endl;
 	
@@ -629,18 +600,6 @@ void WaterTable2::initContext(GLContextData& contextData) const
 	glReadBuffer(GL_NONE);	
 	}
 
-	{
-	/*Create the water source frame buffer: */
-	glGenFramebuffersEXT(1,&dataItem->waterSourceFramebufferObject);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,dataItem->waterSourceFramebufferObject);
-
-	/*Attach the quantity texture to water source frame buffer*/
-	for(int i=0;i<3;++i)
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT+i,GL_TEXTURE_RECTANGLE_ARB,dataItem->quantityTextureObjects[i],0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);	
-	}
-
 	/* Restore the previously bound frame buffer: */
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,currentFrameBuffer);
 	
@@ -802,22 +761,6 @@ void WaterTable2::initContext(GLContextData& contextData) const
 	dataItem->freezeShaderUniformLocations[1]=glGetUniformLocationARB(dataItem->freezeShader,"quantitySampler");
 	dataItem->freezeShaderUniformLocations[2]=glGetUniformLocationARB(dataItem->freezeShader,"bathymetrySampler");	
 	}
-
-	//Create the water source shader:
-	{
-	GLhandleARB vertexShader=glCompileVertexShaderFromString(vertexShaderSource);
-	GLhandleARB fragmentShader=compileFragmentShader("WaterSourceShader");
-	dataItem->waterSourceShader=glLinkShader(vertexShader,fragmentShader);
-	glDeleteObjectARB(vertexShader);
-	glDeleteObjectARB(fragmentShader);
-	dataItem->waterSourceShaderUniformLocations[0]=glGetUniformLocationARB(dataItem->waterSourceShader,"waterSourceType");	
-	dataItem->waterSourceShaderUniformLocations[1]=glGetUniformLocationARB(dataItem->waterSourceShader,"waveAmplitude");	
-	dataItem->waterSourceShaderUniformLocations[2]=glGetUniformLocationARB(dataItem->waterSourceShader,"waveFrequency");	
-	dataItem->waterSourceShaderUniformLocations[3]=glGetUniformLocationARB(dataItem->waterSourceShader,"tidalWave");
-	dataItem->waterSourceShaderUniformLocations[4]=glGetUniformLocationARB(dataItem->waterSourceShader,"quantitySampler");
-	dataItem->waterSourceShaderUniformLocations[5]=glGetUniformLocationARB(dataItem->waterSourceShader,"bathymetrySampler");	
-	}
-	
 	}
 
 void WaterTable2::setElevationRange(Scalar newMin,Scalar newMax)
@@ -855,29 +798,9 @@ void WaterTable2::snowConfigurationCallback(const IO::FileMonitor::Event& event)
 	s=criticalHeightSource.readLine(); //third line is comment
 	s=criticalHeightSource.readLine();
 	meltRate=std::stof(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	waterSourceType=std::stoi(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	waveAmplitude=std::stof(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	waveFrequency=std::stof(s);
-	s=criticalHeightSource.readLine(); // line is comment
-	s=criticalHeightSource.readLine();
-	tidalWave=std::stoi(s);
-	
-
-	std::cout << "Updated Water Source values, type: " << waterSourceType << std::endl;
-	std::cout << "Amplitude " << waveAmplitude << " Frequency " << waveFrequency << std::endl;
-	std::cout << "Tidal Wave " << tidalWave << std::endl;
-
-  }
+	//std::cout<< "Updated critical height: " << criticalHeight << std::endl;
+	//std::cout<< "Updated the snow melt rate: " << meltRate << std::endl;
+	}
 
 void WaterTable2::addRenderFunction(const AddWaterFunction* newRenderFunction)
 	{
@@ -1176,7 +1099,7 @@ GLfloat WaterTable2::runSimulationStep(bool forceStepSize,GLContextData& context
 	glEnd();
 	//std::cout<<"Count"<<std::endl;
 	if(dryBoundary)
-	{
+		{
 		/* Set up the boundary condition shader to enforce dry boundaries: */
 		glUseProgramObjectARB(dataItem->boundaryShader);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -1192,60 +1115,11 @@ GLfloat WaterTable2::runSimulationStep(bool forceStepSize,GLContextData& context
 		glVertex2f(0.5f,GLfloat(size[1])-0.5f);
 		glEnd();
 		//glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-	}
+		}
 	
 	/* Update the current quantities: */
 	dataItem->currentQuantity=1-dataItem->currentQuantity;
-
-	if(waterSourceType!=0){
-		if(waterSourceType ==2){ // compute wave properties for this timestep
-			dataItem->waveStrength=Math::sin(1.0*applicationTime); 
-		}
-		if(waterSourceType ==3){
-			//std::cout << "\nWater Source 3" << std::endl;
-			if(newTidalWave==1){
-				dataItem->tidalWaveAction=1;
-				dataItem->tidalWaveDuration=10;
-				std::cout << "tidal Wave On" << std:: endl;
-			}
-
-			
-			if(dataItem->tidalWaveAction==1 && dataItem->tidalWaveDuration--<=0)
-			{
-				dataItem->tidalWaveAction=0;
-				std::cout << "tidal Wave Off" << std:: endl;
-			}
-			
-		}
-		
-		/*Set up the water source frame buffer*/
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,dataItem->waterSourceFramebufferObject);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+(dataItem->currentQuantity));
-		glViewport(0,0,size[0],size[1]);
-
-		/*Set up the water source shader*/
-		glUseProgramObjectARB(dataItem->waterSourceShader);
-		glUniformARB(dataItem->waterSourceShaderUniformLocations[0],waterSourceType);
-		glUniformARB(dataItem->waterSourceShaderUniformLocations[1],dataItem->waveStrength);
-		glUniformARB(dataItem->waterSourceShaderUniformLocations[2],waveFrequency);
-		glUniformARB(dataItem->waterSourceShaderUniformLocations[3],dataItem->tidalWaveAction);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->quantityTextureObjects[dataItem->currentQuantity]);
-		glUniform1iARB(dataItem->waterSourceShaderUniformLocations[4],0);
-		glActiveTextureARB(GL_TEXTURE1_ARB);
-		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->bathymetryTextureObjects[dataItem->currentBathymetry]);
-		glUniform1iARB(dataItem->waterSourceShaderUniformLocations[5],1);
-
-		/*Run the Water Source Step*/
-		
-		glBegin(GL_QUADS);
-		glVertex2i(0,0);
-		glVertex2i(size[0],0);
-		glVertex2i(size[0],size[1]);
-		glVertex2i(0,size[1]);
-		glEnd();
-
-	}
+	//std::cout<<"Testing"<<std::endl;
 	/*Set up the Snow Frame buffer*/
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,dataItem->snowFramebufferObject);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
@@ -1259,7 +1133,7 @@ GLfloat WaterTable2::runSimulationStep(bool forceStepSize,GLContextData& context
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->snowTextureObject);
 	glUniform1iARB(dataItem->snowShaderUniformLocations[2],0);
 	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->quantityTextureObjects[1-dataItem->currentQuantity]);
+	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->quantityTextureObjects[dataItem->currentQuantity]);
 	glUniform1iARB(dataItem->snowShaderUniformLocations[3],1);
 	glActiveTextureARB(GL_TEXTURE2_ARB);
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->bathymetryTextureObjects[dataItem->currentBathymetry]);
